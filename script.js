@@ -1,9 +1,14 @@
-class Stopwatch {
+class Stopwatch extends React.Component{
+    
+    constructor(props) {
+        super(props);
+    /*   
     constructor(display) {
         this.running = false;
         this.display = display;
         this.reset();
         this.print(this.times);
+    */    
     }
 
     reset() {
@@ -56,6 +61,9 @@ class Stopwatch {
         return `${pad0(times.minutes)}:${pad0(times.seconds)}:${pad0(Math.floor(times.miliseconds))}`;
     }
 
+    render() {
+        return <h1>dupa</h1>
+    }
 
 }
 
@@ -93,3 +101,9 @@ resetButton.addEventListener('click', () => stopwatch.reset());
 
 const lapTimeButton = document.getElementById('lap-time');
 lapTimeButton.addEventListener('click', () => lapTime(stopwatch));
+
+
+ReactDOM.render(
+    <Stopwatch />,
+    document.getElementById('app')
+);
