@@ -1,0 +1,25 @@
+{
+    "name": "zadanie_15_6",
+    "version": "1.0.0",
+    "description": "15.6. Co nowego: organizacja",
+    "main": ".eslintrc.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "babel script.js --watch --out-file script-compiled.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/martinproxy0/Zadanie_15_6.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/martinproxy0/Zadanie_15_6/issues"
+    },
+    "homepage": "https://github.com/martinproxy0/Zadanie_15_6#readme",
+    "devDependencies": {
+        "babel-cli": "^6.26.0",
+        "babel-preset-env": "^1.6.1"
+    }
+}

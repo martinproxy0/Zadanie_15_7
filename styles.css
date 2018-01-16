@@ -1,0 +1,29 @@
+.stopwatch {
+    width: 310px;
+    margin: 5px auto;
+    padding: 30px;
+    background-color: black;
+    border-radius: 10px;
+    color: orange;
+}
+
+.stopwatch,
+.controls {
+    text-align: center;
+    font-size: 32px;
+}
+
+.button {
+    width: 150px;
+    font-size: 32px;
+}
+
+.results {
+    margin-top: 10px;
+}
+
+li {
+    text-align: center;
+    max-width: 600px;
+    margin: 5px auto;
+}
