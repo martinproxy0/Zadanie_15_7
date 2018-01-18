@@ -2,106 +2,124 @@ class Stopwatch extends React.Component{
     
     constructor(props) {
         super(props);
-    /*   
-    constructor(display) {
-        this.running = false;
-        this.display = display;
-        this.reset();
-        this.print(this.times);
-    */    
-    }
-
-    reset() {
-        if (!this.running){
-            this.times = {
+        this.state = {
+            running: false,
+            laps: [],
+            times: {
                 minutes: 0,
                 seconds: 0,
                 miliseconds: 0
-            };
-            this.print();
-            result.innerText = '';
+            }
+        };
+    }
+
+    reset() {
+        if (!this.state.running){
+            this.setState({
+                times: {
+                minutes: 0,
+                seconds: 0,
+                miliseconds: 0
+                }
+            });
+            this.clear();
         }
     }
 
+    clear() {
+        this.stop();
+        this.setState({
+            laps: []
+        });
+    }
+
     start() {
-        if (!this.running) {
-            this.running = true;
+        if (!this.state.running) {
+            this.setState({
+                running: true
+            });
             this.watch = setInterval(() => this.step(), 10);
         }
     }
 
     step() {
-        if (!this.running) return;
+        if (!this.state.running) return;
         this.calculate();
-        this.print();
     }
     
     calculate() {
-        this.times.miliseconds += 1;
-        if (this.times.miliseconds >= 100) {
-            this.times.seconds += 1;
-            this.times.miliseconds = 0;
+        let { minutes, seconds, miliseconds } = this.state.times;
+
+        miliseconds += 1;
+        if (miliseconds >= 100) {
+            seconds += 1;
+            miliseconds = 0;
         }
-        if (this.times.seconds >= 60) {
-            this.times.minutes += 1;
-            this.times.seconds = 0;
+        if (seconds >= 60) {
+            minutes += 1;
+            seconds = 0;
         }
+        this.setState({
+            times: {
+                minutes: minutes,
+                seconds: seconds,
+                miliseconds:miliseconds
+            }
+        });
     }
 
     stop() {
-        this.running = false;
+        this.state.running = false;
         clearInterval(this.watch);
     }
 
-    print() {
-        this.display.innerText = this.format(this.times);
+    format(times) {
+        return `${this.pad0(this.state.times.minutes)}:${this.pad0(this.state.times.seconds)}:${this.pad0(Math.floor(this.state.times.miliseconds))}`;
     }
 
-    format(times) {
-        return `${pad0(times.minutes)}:${pad0(times.seconds)}:${pad0(Math.floor(times.miliseconds))}`;
+    pad0(value) {
+        let result = value.toString();
+        if (result.length < 2) {
+            result = '0' + result;
+        }
+        return result;
+    }
+
+    lapTime() {
+        if (this.state.running) {
+            let time = this.format(this.state.times);
+            this.setState(
+                (prevState, props) => ({
+                    laps: [...prevState.laps, {'time': time, 'id': new Date().getMilliseconds()}]
+                })
+            );
+        }
     }
 
     render() {
-        return <h1>dupa</h1>
+        return (
+            <div>
+                <nav className="controls">
+                    <a href="#" className="button btn btn-success" onClick={this.start.bind(this)}>Start</a>
+                    <a href="#" className="button btn btn-primary" onClick={this.stop.bind(this)}>Stop</a>
+                </nav>
+                <div className="stopwatch">{this.format(this.state.times)}</div>
+                <nav className="controls">
+                    <a href="#" className="button btn btn-warning" onClick={this.lapTime.bind(this)}>Lap time</a>
+                    <a href="#" className="button btn btn-danger" onClick={this.reset.bind(this)}>Reset</a>
+                </nav>
+                <ul className="results">
+                    {this.state.laps.map((lap,index) =>
+                        <li className="list-group-item list-group-item-dark" key={lap.id}>
+                            Lap no. {index + 1} with time = {lap.time}
+                        </li>)                                               
+                    }
+                </ul>
+            </div>            
+        );
     }
 
 }
-
-function pad0(value) {
-    let result = value.toString();
-    if (result.length < 2) {
-        result = '0' + result;
-    }
-    return result;
-};
-
-function lapTime(sw) {
-    let element = document.createElement("li");
-    element.setAttribute('class',"list-group-item list-group-item-dark");
-    element.innerText = `Lap no. ${result.childElementCount + 1} with time = ${sw.display.innerText}`;
-    result.appendChild(element);
-};
-
-const result = document.querySelector('.results');
-
-const stopwatch = new Stopwatch(
-    document.querySelector('.stopwatch')
-);
-
-
-
-const startButton = document.getElementById('start');
-startButton.addEventListener('click', () => stopwatch.start());
-
-const stopButton = document.getElementById('stop');
-stopButton.addEventListener('click', () => stopwatch.stop());
-
-const resetButton = document.getElementById('reset');
-resetButton.addEventListener('click', () => stopwatch.reset());
-
-const lapTimeButton = document.getElementById('lap-time');
-lapTimeButton.addEventListener('click', () => lapTime(stopwatch));
-
 
 ReactDOM.render(
     <Stopwatch />,

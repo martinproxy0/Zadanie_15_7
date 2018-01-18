@@ -2,6 +2,8 @@
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -14,36 +16,51 @@ var Stopwatch = function (_React$Component) {
     function Stopwatch(props) {
         _classCallCheck(this, Stopwatch);
 
-        return _possibleConstructorReturn(this, (Stopwatch.__proto__ || Object.getPrototypeOf(Stopwatch)).call(this, props));
-        /*   
-        constructor(display) {
-            this.running = false;
-            this.display = display;
-            this.reset();
-            this.print(this.times);
-        */
+        var _this = _possibleConstructorReturn(this, (Stopwatch.__proto__ || Object.getPrototypeOf(Stopwatch)).call(this, props));
+
+        _this.state = {
+            running: false,
+            laps: [],
+            times: {
+                minutes: 0,
+                seconds: 0,
+                miliseconds: 0
+            }
+        };
+        return _this;
     }
 
     _createClass(Stopwatch, [{
         key: 'reset',
         value: function reset() {
-            if (!this.running) {
-                this.times = {
-                    minutes: 0,
-                    seconds: 0,
-                    miliseconds: 0
-                };
-                this.print();
-                result.innerText = '';
+            if (!this.state.running) {
+                this.setState({
+                    times: {
+                        minutes: 0,
+                        seconds: 0,
+                        miliseconds: 0
+                    }
+                });
+                this.clear();
             }
+        }
+    }, {
+        key: 'clear',
+        value: function clear() {
+            this.stop();
+            this.setState({
+                laps: []
+            });
         }
     }, {
         key: 'start',
         value: function start() {
             var _this2 = this;
 
-            if (!this.running) {
-                this.running = true;
+            if (!this.state.running) {
+                this.setState({
+                    running: true
+                });
                 this.watch = setInterval(function () {
                     return _this2.step();
                 }, 10);
@@ -52,90 +69,125 @@ var Stopwatch = function (_React$Component) {
     }, {
         key: 'step',
         value: function step() {
-            if (!this.running) return;
+            if (!this.state.running) return;
             this.calculate();
-            this.print();
         }
     }, {
         key: 'calculate',
         value: function calculate() {
-            this.times.miliseconds += 1;
-            if (this.times.miliseconds >= 100) {
-                this.times.seconds += 1;
-                this.times.miliseconds = 0;
+            var _state$times = this.state.times,
+                minutes = _state$times.minutes,
+                seconds = _state$times.seconds,
+                miliseconds = _state$times.miliseconds;
+
+
+            miliseconds += 1;
+            if (miliseconds >= 100) {
+                seconds += 1;
+                miliseconds = 0;
             }
-            if (this.times.seconds >= 60) {
-                this.times.minutes += 1;
-                this.times.seconds = 0;
+            if (seconds >= 60) {
+                minutes += 1;
+                seconds = 0;
             }
+            this.setState({
+                times: {
+                    minutes: minutes,
+                    seconds: seconds,
+                    miliseconds: miliseconds
+                }
+            });
         }
     }, {
         key: 'stop',
         value: function stop() {
-            this.running = false;
+            this.state.running = false;
             clearInterval(this.watch);
-        }
-    }, {
-        key: 'print',
-        value: function print() {
-            this.display.innerText = this.format(this.times);
         }
     }, {
         key: 'format',
         value: function format(times) {
-            return pad0(times.minutes) + ':' + pad0(times.seconds) + ':' + pad0(Math.floor(times.miliseconds));
+            return this.pad0(this.state.times.minutes) + ':' + this.pad0(this.state.times.seconds) + ':' + this.pad0(Math.floor(this.state.times.miliseconds));
+        }
+    }, {
+        key: 'pad0',
+        value: function pad0(value) {
+            var result = value.toString();
+            if (result.length < 2) {
+                result = '0' + result;
+            }
+            return result;
+        }
+    }, {
+        key: 'lapTime',
+        value: function lapTime() {
+            if (this.state.running) {
+                var time = this.format(this.state.times);
+                this.setState(function (prevState, props) {
+                    return {
+                        laps: [].concat(_toConsumableArray(prevState.laps), [{ 'time': time, 'id': new Date().getMilliseconds() }])
+                    };
+                });
+            }
         }
     }, {
         key: 'render',
         value: function render() {
             return React.createElement(
-                'h1',
+                'div',
                 null,
-                'dupa'
+                React.createElement(
+                    'nav',
+                    { className: 'controls' },
+                    React.createElement(
+                        'a',
+                        { href: '#', className: 'button btn btn-success', onClick: this.start.bind(this) },
+                        'Start'
+                    ),
+                    React.createElement(
+                        'a',
+                        { href: '#', className: 'button btn btn-primary', onClick: this.stop.bind(this) },
+                        'Stop'
+                    )
+                ),
+                React.createElement(
+                    'div',
+                    { className: 'stopwatch' },
+                    this.format(this.state.times)
+                ),
+                React.createElement(
+                    'nav',
+                    { className: 'controls' },
+                    React.createElement(
+                        'a',
+                        { href: '#', className: 'button btn btn-warning', onClick: this.lapTime.bind(this) },
+                        'Lap time'
+                    ),
+                    React.createElement(
+                        'a',
+                        { href: '#', className: 'button btn btn-danger', onClick: this.reset.bind(this) },
+                        'Reset'
+                    )
+                ),
+                React.createElement(
+                    'ul',
+                    { className: 'results' },
+                    this.state.laps.map(function (lap, index) {
+                        return React.createElement(
+                            'li',
+                            { className: 'list-group-item list-group-item-dark', key: lap.id },
+                            'Lap no. ',
+                            index + 1,
+                            ' with time = ',
+                            lap.time
+                        );
+                    })
+                )
             );
         }
     }]);
 
     return Stopwatch;
 }(React.Component);
-
-function pad0(value) {
-    var result = value.toString();
-    if (result.length < 2) {
-        result = '0' + result;
-    }
-    return result;
-};
-
-function lapTime(sw) {
-    var element = document.createElement("li");
-    element.setAttribute('class', "list-group-item list-group-item-dark");
-    element.innerText = 'Lap no. ' + (result.childElementCount + 1) + ' with time = ' + sw.display.innerText;
-    result.appendChild(element);
-};
-
-var result = document.querySelector('.results');
-
-var stopwatch = new Stopwatch(document.querySelector('.stopwatch'));
-
-var startButton = document.getElementById('start');
-startButton.addEventListener('click', function () {
-    return stopwatch.start();
-});
-
-var stopButton = document.getElementById('stop');
-stopButton.addEventListener('click', function () {
-    return stopwatch.stop();
-});
-
-var resetButton = document.getElementById('reset');
-resetButton.addEventListener('click', function () {
-    return stopwatch.reset();
-});
-
-var lapTimeButton = document.getElementById('lap-time');
-lapTimeButton.addEventListener('click', function () {
-    return lapTime(stopwatch);
-});
 
 ReactDOM.render(React.createElement(Stopwatch, null), document.getElementById('app'));
